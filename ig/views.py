@@ -127,11 +127,11 @@ def parse_instagram_update(update):
 
 def postupdate(request):
 	if request.method == 'GET':
-        challenge = request.GET.get('hub.challenge')
-        if challenge:
-        	print challenge
-        	return HttpResponse(challenge)
-    else:
+		challenge = request.GET.get('hub.challenge')
+		if challenge:
+			print challenge
+			return HttpResponse(challenge)
+	else:
 		print 'callback post'
 		reactor = subscriptions.SubscriptionsReactor()
 		reactor.register_callback(subscriptions.SubscriptionType.TAG, parse_instagram_update)
