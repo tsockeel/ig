@@ -145,7 +145,7 @@ def postupdate(request):
 
 		try:
 			reactor.process(CONFIG['client_secret'], raw_response, x_hub_signature)
-		except subscriptions.SubscriptionVerifyError:
-			print 'Instagram signature mismatch'
+		except Exception, e:
+			print 'postupdate exception: %s' %e
 
 		return HttpResponse('Parsed instagram')
