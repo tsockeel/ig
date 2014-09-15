@@ -31,11 +31,11 @@ def recent_tag(tagname):
 		recent_media, next = api.tag_recent_media(tag_name=tag_search[0].name, count=1)
 
 		for media in recent_media:
-			print 'new media %s' % media.link
+			#print 'new media %s' % media.link
 			#try:
 			#	Post.objects.get(instagram_id=media.id)
 			#except Post.DoesNotExists:
-			#Post.objects.create(username = media.user.username, instagram_id=media.id, post_url = media.link, media_type = media.type, tagname = tagname, media_url_lowres = media.get_low_resolution_url(), media_url_stdres = media.get_standard_resolution_url())
+			Post.objects.create(username = media.user.username, instagram_id=media.id, post_url = media.link, media_type = media.type, tagname = tagname, media_url_lowres = media.get_low_resolution_url(), media_url_stdres = media.get_standard_resolution_url())
 
 	except Exception, e:
 		print 'recent_tag exception: %s' % e
