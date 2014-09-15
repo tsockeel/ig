@@ -34,8 +34,8 @@ def oauth(request):
 		print "access token= " + access_token
 		if not access_token:
 			return 'Could not get access token'
-		request.session['username'] = user_info['username']
-		request.session['access_token'] = access_token
+		#request.session['username'] = user_info['username']
+		#request.session['access_token'] = access_token
 
 	except Exception, e:
 		print 'oauth exception: %s' %e
