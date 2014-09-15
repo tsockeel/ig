@@ -5,6 +5,7 @@ from django.db import models
 class Post(models.Model):
 	username = models.CharField(max_length=100)
 	posted_date = models.DateTimeField(auto_now_add=True)
+	tagname = models.CharField(max_length=50)
 	instagram_id = models.IntegerField()
 	post_url = models.URLField()
 	media_type = models.CharField(max_length=20)

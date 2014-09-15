@@ -139,8 +139,7 @@ def postupdate(request):
 		if challenge:
 			return HttpResponse(challenge)
 	else:
-		print 'callback post'
-
+		
 		x_hub_signature = request.META.get('HTTP_X_HUB_SIGNATURE')
 		raw_response = request.body
 
