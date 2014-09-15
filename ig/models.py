@@ -6,7 +6,7 @@ class Post(models.Model):
 	username = models.CharField(max_length=100)
 	posted_date = models.DateTimeField(auto_now_add=True)
 	tagname = models.CharField(max_length=50)
-	instagram_id = models.IntegerField()
+	instagram_id = models.CharField(max_length=50)
 	post_url = models.URLField()
 	media_type = models.CharField(max_length=20)
 	media_url_lowres = models.URLField()
