@@ -123,7 +123,6 @@ def parse_instagram_update(update):
 	tagName = update['object_id']
 	recent_tag(tagName)
 
-@require_http_methods(["GET", "POST"])
 def postupdate(request):
         challenge = request.GET.get('hub.challenge')
         if challenge:
