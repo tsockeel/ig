@@ -72,8 +72,8 @@ def oauth(request):
 		if not access_token:
 			return 'Could not get access token'
 		api = client.InstagramAPI(access_token=access_token)
-		#request.session['username'] = user_info['username']
-		#request.session['access_token'] = access_token
+		request.session['username'] = user_info['username']
+		request.session['access_token'] = access_token
 
 	except Exception, e:
 		print 'oauth exception: %s' %e
