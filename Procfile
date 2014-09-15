@@ -1,1 +1,1 @@
-web: gunicorn realtime.wsgi --log-file -
+web: gunicorn realtime.wsgi --workers 3
