@@ -11,7 +11,7 @@
 		</div>
 		<hr />
 		<div>
-            {% if request.session.user_id %}
+            {% if request.session.username %}
                 <h1><a > Welcome {{ request.session.username }} !</a></h1>
             {% else %}
                 <a href={{ oauth_url }}>Connect with Instagram</a>
