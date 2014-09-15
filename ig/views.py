@@ -15,7 +15,7 @@ CONFIG = {
 }
 
 unauthenticated_api = client.InstagramAPI(**CONFIG)
-access_token = '1496477170.1ffc6ea.ec71a8618b534c519649db580229ab4e'
+access_token = '15254776.50b1709.478c82a701094816a1794b666b6721c4'
 
 def home(request):
 	try:
