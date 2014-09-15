@@ -3,6 +3,7 @@ from django.views.decorators.http import require_http_methods
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 from instagram import client, subscriptions
@@ -125,6 +126,7 @@ def parse_instagram_update(update):
 	print 'post tagged %s' %tagName
 	#recent_tag(tagName)
 
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def postupdate(request):
 	if request.method == 'GET':
