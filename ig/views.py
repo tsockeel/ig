@@ -34,6 +34,7 @@ def oauth(request):
 		print "access token= " + access_token
 		if not access_token:
 			return 'Could not get access token'
+		api = client.InstagramAPI(access_token=access_token)
 		#request.session['username'] = user_info['username']
 		#request.session['access_token'] = access_token
 
@@ -121,13 +122,16 @@ def recent_tag(tagname):
 
 def parse_instagram_update(update):
 	tagName = update['object_id']
-	recent_tag(tagName)
+	print 'post tagged %s' %tagName
+	#recent_tag(tagName)
 
 def postupdate(request):
+	if request.method == 'GET':
         challenge = request.GET.get('hub.challenge')
         if challenge:
+        	print challenge
         	return HttpResponse(challenge)
-
+    else:
 		print 'callback post'
 		reactor = subscriptions.SubscriptionsReactor()
 		reactor.register_callback(subscriptions.SubscriptionType.TAG, parse_instagram_update)
