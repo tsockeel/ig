@@ -1,1 +1,1 @@
-web: gunicorn realtime.wsgi --workers 3
+web: gunicorn realtime.wsgi --worker-class gevent --workers 3
