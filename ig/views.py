@@ -15,6 +15,9 @@ CONFIG = {
 	'redirect_uri': 'http://tsockeel.herokuapp.com/ig/oauth'
 }
 
+reactor = subscriptions.SubscriptionsReactor()
+reactor.register_callback(subscriptions.SubscriptionType.TAG, parse_instagram_update)
+
 unauthenticated_api = client.InstagramAPI(**CONFIG)
 access_token = '15254776.50b1709.478c82a701094816a1794b666b6721c4'
 
@@ -135,8 +138,6 @@ def postupdate(request):
 			return HttpResponse(challenge)
 	else:
 		print 'callback post'
-		reactor = subscriptions.SubscriptionsReactor()
-		reactor.register_callback(subscriptions.SubscriptionType.TAG, parse_instagram_update)
 
 		x_hub_signature = request.header.get('X-Hub-Signature')
 		raw_response = request.body.read()
@@ -146,4 +147,4 @@ def postupdate(request):
 		except Exception, e:
 			print 'postupdate exception: %s' %e
 
-		return HttpResponse('Parsed instagram')
+	return HttpResponse('Parsed instagram')
