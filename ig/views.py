@@ -138,8 +138,8 @@ def postupdate(request):
 		reactor = subscriptions.SubscriptionsReactor()
 		reactor.register_callback(subscriptions.SubscriptionType.TAG, parse_instagram_update)
 
-		x_hub_signature = request.META.get('X-Hub-Signature')
-		raw_response    = request.body
+		x_hub_signature = request.header.get('X-Hub-Signature')
+		raw_response = request.body.read()
 
 		try:
 			reactor.process(CONFIG['client_secret'], raw_response, x_hub_signature)
