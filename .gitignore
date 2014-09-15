@@ -1,0 +1,3 @@
+herokuenv
+*.pyc
+staticfiles
