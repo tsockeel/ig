@@ -125,6 +125,7 @@ def parse_instagram_update(update):
 	print 'post tagged %s' %tagName
 	#recent_tag(tagName)
 
+@require_http_methods(["GET", "POST"])
 def postupdate(request):
 	if request.method == 'GET':
 		challenge = request.GET.get('hub.challenge')
