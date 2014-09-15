@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from ig.models import Post
 
 
 from instagram import client, subscriptions
@@ -15,10 +16,35 @@ CONFIG = {
 	'redirect_uri': 'http://tsockeel.herokuapp.com/ig/oauth'
 }
 
+
+def recent_tag(tagname):
+	if not tagname:
+		print 'No tag name from update ! '
+		return
+
+	if not access_token:
+		print 'Missing Access Token'
+		return
+	try:
+		api = client.InstagramAPI(access_token=access_token)
+		tag_search, next_tag = api.tag_search(q=tagname)
+		recent_media, next = api.tag_recent_media(tag_name=tag_search[0].name, count=1)
+
+		for media in recent_media:
+			print 'new media %s' % media.link
+			try:
+				Post.objects.get(instagram_id=media.id)
+			except Post.DoesNotExists:
+				Post.objects.create(username = media.user.username, instagram_id=media.id, post_url = media.link, media_type = media.type, tagname = tagname, media_url_lowres = media.get_low_resolution_url(), media_url_stdres = media.get_standard_resolution_url())
+
+	except Exception, e:
+		print 'recent_tag exception: %s' % e
+
+
+
 def parse_instagram_update(update):
 	tagName = update['object_id']
-	print 'post tagged %s' %tagName
-	#recent_tag(tagName)
+	recent_tag(tagName)
 
 
 reactor = subscriptions.SubscriptionsReactor()
@@ -104,31 +130,6 @@ def rmsubtag(request, id):
 	except Exception, e:
 		print 'realtimeremove exception: %s'% e
 	return realtimelist(request)
-
-
-def recent_tag(tagname):
-	print 'recent-tag'
-	if not tagname:
-		print 'No tag name from update ! '
-		return
-
-	if not access_token:
-		print 'Missing Access Token'
-		return
-	try:
-		api = client.InstagramAPI(access_token=access_token)
-		tag_search, next_tag = api.tag_search(q=tagname)
-		recent_media, next = api.tag_recent_media(tag_name=tag_search[0].name, count=1)
-
-		for media in recent_media:
-			print 'new media %s' % media.link
-			#try:
-			#	Post.objects.get(instagram_id=media.id)
-			#except Post.DoesNotExists:
-			#	Post.objects.create(username = media.user.username, instagram_id=media.id, post_url = media.link, media_type = media.type, tagname = tagname, media_url_lowres = media.get_low_resolution_url(), media_url_stdres = media.get_standard_resolution_url())
-
-	except Exception, e:
-		print 'recent_tag exception: %s' % e
 
 
 @csrf_exempt
