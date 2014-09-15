@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ig',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -82,6 +83,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+TEMPLATE_DIRS = (
+  BASE_DIR + '/templates/',
+)
 
 
 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>{% block title %} Instagram printer {% endblock %}</title>
+	</head>
+
+	<body>
+		<div>
+		    <h1><a href="/ig/">Instagram Printer</a></h1>
+		</div>
+		<hr />
+		<div>
+            {% if request.session.user_id %}
+                <h1><a > Welcome {{ request.session.username }} !</a></h1>
+            {% else %}
+                <a href={{ oauth_url }}>Connect with Instagram</a>
+            {% endif %}
+
+		</div>
+		<hr />
+		<div>
+			<ul>
+
+				<h1>Python Instagram</h1>
+                 <ul>
+                     <li><a href='/ig/tag/nofilter'>Tags</a> Search for tags, view tag info and get media by tag</li>
+                     <li><a href='/ig/subtag/?tagname=nofilter'>Real time subscription</a> Real-time Subscriptions: and get media by tag</li>
+                     <li>
+                        <form action="/ig/subtag/" method="get">
+                            <label>Subscribe to Tag #</label>
+                            <input type="text" name="tagname" placeholder="medellin">
+                            <input type="submit" value="Go">
+                        </form>
+                    </li>
+
+                    {% if subsc_list.data %}
+                        {% for d in subsc_list.data %}
+                            <li><a > Saving {{d.object}} #{{d.object_id}} in database</a> <a href="/ig/rmsubtag/{{d.id}}"> Remove </a> </li>
+                        {% endfor %}
+                    {% endif %}
+
+                 </ul>
+            <hr />
+            {{ media_content }}
+			</ul>
+		</div>
+
+
+	</body>
+</html>
