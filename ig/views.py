@@ -92,12 +92,12 @@ def tag(request, tagname):
 
 		photos = []
 		for media in recent_media:
-			photos.append('<div style="float:left;">')
+			photos.append('<div style="float:left;"> <a href=%s title=%s target="_blank">' % (media.link, media.caption.text))
 			if(media.type == 'video'):
 				photos.append('<video controls width height="150"><source type="video/mp4" src="%s"/></video>' % (media.get_standard_resolution_url()))
 			else:
 				photos.append('<img src="%s" alt="%s"/>' % (media.get_low_resolution_url(), media.caption.text))
-			photos.append("<br/> </div>")
+			photos.append("</a><br/> </div>")
 		media_content += ''.join(photos)
 	except Exception, e:
 		print 'recenttag exception: %s' %e
