@@ -142,7 +142,7 @@ def postupdate(request):
 		print 'callback post'
 
 		x_hub_signature = request.header.get('X-Hub-Signature')
-		raw_response = request.body.read()
+		raw_response = request.body
 
 		try:
 			reactor.process(CONFIG['client_secret'], raw_response, x_hub_signature)
