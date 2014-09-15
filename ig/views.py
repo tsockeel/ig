@@ -96,7 +96,7 @@ def tag(request, tagname):
 			if(media.type == 'video'):
 				photos.append('<video controls width height="150"><source type="video/mp4" src="%s"/></video>' % (media.get_standard_resolution_url()))
 			else:
-				photos.append('<img src="%s"/>' % (media.get_low_resolution_url()))
+				photos.append('<img src="%s" alt="%s"/>' % (media.get_low_resolution_url(), media.caption.text))
 			photos.append("<br/> </div>")
 		media_content += ''.join(photos)
 	except Exception, e:
