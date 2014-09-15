@@ -31,11 +31,11 @@ def recent_tag(tagname):
 		recent_media, next = api.tag_recent_media(tag_name=tag_search[0].name, count=1)
 
 		for media in recent_media:
-			#print 'new media %s' % media.link
+			print 'new media %s' % media.link
 			#try:
 			#	Post.objects.get(instagram_id=media.id)
 			#except Post.DoesNotExists:
-			Post.objects.create(username = media.user.username, instagram_id=media.id, post_url = media.link, media_type = media.type, tagname = tagname, media_url_lowres = media.get_low_resolution_url(), media_url_stdres = media.get_standard_resolution_url())
+			#Post.objects.create(username = media.user.username, instagram_id=media.id, post_url = media.link, media_type = media.type, tagname = tagname, media_url_lowres = media.get_low_resolution_url(), media_url_stdres = media.get_standard_resolution_url())
 
 	except Exception, e:
 		print 'recent_tag exception: %s' % e
@@ -56,9 +56,10 @@ access_token = '15254776.50b1709.478c82a701094816a1794b666b6721c4'
 def home(request):
 	try:
 		oauth_url = unauthenticated_api.get_authorize_url(scope=["basic"])
+		subsc_list = unauthenticated_api.list_subscriptions()
 	except Exception, e:
 		print 'home exception: %s' %e
-	return render_to_response('ig/base.html', locals(), RequestContext(request))
+	return render_to_response('ig/content.html', locals(), RequestContext(request))
 
 
 def oauth(request):
@@ -87,7 +88,7 @@ def tag(request, tagname):
 	try:
 		api = client.InstagramAPI(access_token=access_token)
 		tag_search, next_tag = api.tag_search(q=tagname)
-		recent_media, next = api.tag_recent_media(tag_name=tag_search[0].name, count=2)
+		recent_media, next = api.tag_recent_media(tag_name=tag_search[0].name, count=20)
 
 		photos = []
 		for media in recent_media:
@@ -96,7 +97,7 @@ def tag(request, tagname):
 				photos.append('<video controls width height="150"><source type="video/mp4" src="%s"/></video>' % (media.get_standard_resolution_url()))
 			else:
 				photos.append('<img src="%s"/>' % (media.get_low_resolution_url()))
-			photos.append("<br/> <a href='/media_like/%s'>Like</a>  <a href='/media_unlike/%s'>Un-Like</a>  LikesCount=%s</div>" % (media.id,media.id,media.like_count))
+			photos.append("<br/> </div>")
 		media_content += ''.join(photos)
 	except Exception, e:
 		print 'recenttag exception: %s' %e
@@ -113,15 +114,7 @@ def subtag(request):
 			print 'realtimetag subscription done'
 		except Exception, e:
 			print 'realtimetag exception: %s' % e
-		return realtimelist(request)
-
-
-def realtimelist(request):
-	try:
-		subsc_list = unauthenticated_api.list_subscriptions()
-	except Exception, e:
-		print 'realtimelist exception: %s'% e
-	return render_to_response('ig/content.html', locals(), RequestContext(request))
+		return redirect('home')
 
 
 def rmsubtag(request, id):
@@ -129,7 +122,7 @@ def rmsubtag(request, id):
 		unauthenticated_api.delete_subscriptions(id=id)
 	except Exception, e:
 		print 'realtimeremove exception: %s'% e
-	return realtimelist(request)
+	return redirect('home')
 
 
 @csrf_exempt
