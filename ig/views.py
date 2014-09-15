@@ -35,7 +35,7 @@ def recent_tag(tagname):
 			#try:
 			#	Post.objects.get(instagram_id=media.id)
 			#except Post.DoesNotExists:
-			Post.objects.create(username = media.user.username, instagram_id=media.id, post_url = media.link, media_type = media.type, tagname = tagname, media_url_lowres = media.get_low_resolution_url(), media_url_stdres = media.get_standard_resolution_url())
+			#Post.objects.create(username = media.user.username, instagram_id=media.id, post_url = media.link, media_type = media.type, tagname = tagname, media_url_lowres = media.get_low_resolution_url(), media_url_stdres = media.get_standard_resolution_url())
 
 	except Exception, e:
 		print 'recent_tag exception: %s' % e
@@ -139,7 +139,7 @@ def postupdate(request):
 		if challenge:
 			return HttpResponse(challenge)
 	else:
-		
+
 		x_hub_signature = request.META.get('HTTP_X_HUB_SIGNATURE')
 		raw_response = request.body
 
