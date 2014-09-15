@@ -15,6 +15,12 @@ CONFIG = {
 	'redirect_uri': 'http://tsockeel.herokuapp.com/ig/oauth'
 }
 
+def parse_instagram_update(update):
+	tagName = update['object_id']
+	print 'post tagged %s' %tagName
+	#recent_tag(tagName)
+
+
 reactor = subscriptions.SubscriptionsReactor()
 reactor.register_callback(subscriptions.SubscriptionType.TAG, parse_instagram_update)
 
@@ -124,10 +130,6 @@ def recent_tag(tagname):
 	except Exception, e:
 		print 'recent_tag exception: %s' % e
 
-def parse_instagram_update(update):
-	tagName = update['object_id']
-	print 'post tagged %s' %tagName
-	#recent_tag(tagName)
 
 @csrf_exempt
 def postupdate(request):
