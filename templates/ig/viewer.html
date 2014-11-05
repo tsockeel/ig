@@ -1,0 +1,99 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>InstaQ Viewer</title>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.css">  
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.theme.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" />
+</head>
+
+<body style="background-color: #333">
+
+	<div id="sync2" class="sync2 owl-carousel">
+		{% for p in posts %}
+	    	<div class="item">
+			<img  class="img-responsive img-rounded" src="{{ p.media_url_thumbnail }}">
+		</div>
+		{% endfor %}
+	</div>
+	  
+	<div class="customNavigation">
+		<a class="mybtn first">1</a>
+		<a class="mybtn prev">&#60</a>
+		<a class="mybtn"><span class="currentItem"></span><span> / </span><span class="nbitems"></span></span></a>
+		<a class="mybtn next">&#62</a>
+		<a class="mybtn last">&#8734</a>
+ 		<a class="mybtn refresh">refresh</a>
+		<a class="most_recent_post"></a>
+<!--		<a class="most_recent_post" style="visibility: hidden"></a>-->
+
+	 	 <input type="text" class="form-control subscribe-input" style="max-width:200px; display: inline-block;">
+		 <a class="mybtn subscribe">Go !</a>
+	</div>	  
+	
+
+	<div class="container">  
+	    <div id="sync1" class="sync1 owl-carousel">
+		{% for p in posts %}
+		<div class="item">
+	      		<div class="row">
+				<div class="col-xs-8">
+					<img  class="img-responsive img-rounded" src="{{ p.media_url_stdres }}">
+				</div>
+				<div class="col-xs-4">
+					<h3 class="caption">{{ p.username }}</h3>
+					<h4 class="caption">{{ p.created_time }}</h4>
+		    			<p class="caption">{{ p.caption_text }}</p>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+
+	    </div>
+	</div>
+  
+	
+	  
+  
+  
+	<!-- Include js plugin -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
+	<script src="{% static 'js/main.js' %}"></script>
+
+{% verbatim %}
+	<script id="sync1-template" type="text/x-handlebars-template">
+  	{{#each posts}}
+	 <div class="item">
+                        <div class="row">
+                                <div class="col-xs-8">
+                                        <img  class="img-responsive img-rounded lazyOwl" data-src="{{ media_url_stdres }}">
+                                </div>
+                                <div class="col-xs-4">
+                                        <h3 class="caption">{{ username }}</h3>
+					<h5 class="caption">{{ created_time }}</h5>
+                                        <p class="caption">{{ caption_text }}</p>
+                                </div>
+                        </div>
+                </div>
+	{{/each}}
+	</script>
+
+
+	<script id="sync2-template" type="text/x-handlebars-template">
+        {{#each posts}}
+         <div class="item">
+                        <img  class="img-responsive img-rounded" src="{{ media_url_thumbnail }}">
+                </div>
+        {{/each}}
+        </script>
+{% endverbatim %}
+
+
+</body>
+</html>
