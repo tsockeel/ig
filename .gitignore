@@ -1,2 +1,6 @@
 *.pyc
-staticfiles
+static
+realtime.db
+logs
+run
+migrations
