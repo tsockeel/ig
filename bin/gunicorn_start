@@ -1,0 +1,36 @@
+#!/bin/bash
+
+NAME="djangoapp" # Name of the application
+DJANGODIR=/srv/www/django-webapp/ig # Django project directory
+SOCKFILE=/srv/www/django-webapp/ig/run/djangoapp.sock # we will communicte using this unix socket
+BINDSOCKFILE=unix:$SOCKFILE
+BINDIP=127.0.0.1:8181 #66.228.61.74:8001
+USER=djangoapp # the user to run as
+GROUP=webapps # the group to run as
+NUM_WORKERS=3 # how many worker processes should Gunicorn spawn
+DJANGO_SETTINGS_MODULE=realtime.settings # which settings file should Django use
+DJANGO_WSGI_MODULE=realtime.wsgi # WSGI module name
+TIMEOUT=120
+ 
+echo "Starting $NAME as `whoami`"
+ 
+# Activate the virtual environment
+cd $DJANGODIR
+source ../bin/activate
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+ 
+# Create the run directory if it doesn't exist
+RUNDIR=$(dirname $SOCKFILE)
+test -d $RUNDIR || mkdir -p $RUNDIR
+ 
+# Start your Django Unicorn
+# Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
+exec ../bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
+--name $NAME \
+--workers $NUM_WORKERS \
+--user=$USER --group=$GROUP \
+--bind=$BINDSOCKFILE \
+--log-level=debug \
+--timeout $TIMEOUT \
+--log-file /srv/www/django-webapp/ig/logs/gunicorn.log
