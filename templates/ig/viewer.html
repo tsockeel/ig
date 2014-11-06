@@ -4,10 +4,11 @@
 <html>
 <head>
 <title>InstaQ Viewer</title>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.carousel.css">  
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/owl-carousel/1.3.2/owl.theme.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" />
+ 	<link rel="stylesheet" href="{% static 'css/owl.carousel.css' %}">  
+	<link rel="stylesheet" href="{% static 'css/owl.theme.css' %}">
+	<link rel="stylesheet" href="{% static 'css/owl.transitions.css' %}">
+    	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
 </head>
 
 <body style="background-color: #333">
@@ -21,17 +22,15 @@
 	</div>
 	  
 	<div class="customNavigation">
-		<a class="mybtn first">1</a>
-		<a class="mybtn prev">&#60</a>
+		<a class="glyphicon glyphicon-step-backward mybtn first"></a>
+		<a class="glyphicon glyphicon-chevron-left mybtn prev"></a>
 		<a class="mybtn"><span class="currentItem"></span><span> / </span><span class="nbitems"></span></span></a>
-		<a class="mybtn next">&#62</a>
-		<a class="mybtn last">&#8734</a>
- 		<a class="mybtn refresh">refresh</a>
-		<a class="most_recent_post"></a>
-<!--		<a class="most_recent_post" style="visibility: hidden"></a>-->
-
-	 	 <input type="text" class="form-control subscribe-input" style="max-width:200px; display: inline-block;">
-		 <a class="mybtn subscribe">Go !</a>
+		<a class="glyphicon glyphicon-chevron-right mybtn next"></a>
+		<a class="glyphicon glyphicon-step-forward mybtn last"></a>
+		<a class="most_recent_post" style="visibility: hidden"></a>
+		<a type="button" class="glyphicon glyphicon-cog mybtn settings" data-html=true data-toggle="popover" title="Settings" data-content=onShowSettingsContent()></a>
+		<input type="text" class="form-control subscribe-input" style="max-width:200px; display: inline-block;">
+		<a class="mybtn subscribe">Go !</a>
 	</div>	  
 	
 
@@ -61,6 +60,7 @@
   
 	<!-- Include js plugin -->
 	<script src="{% static 'js/jquery-2.1.1.min.js' %}"></script>
+	<script src="{% static 'js/bootstrap-transition.js' %}"></script>
 	<script src="{% static 'js/owl.carousel.js' %}"></script>
 	<script src="{% static 'js/bootstrap.min.js' %}"></script>
 	<script src="{% static 'js/handlebars-v2.0.0.js' %}"></script>
@@ -88,7 +88,7 @@
 	<script id="sync2-template" type="text/x-handlebars-template">
         {{#each posts}}
          <div class="item">
-                        <img  class="img-responsive img-rounded" src="{{ media_url_thumbnail }}">
+                        <img  class="img-responsive img-rounded lazyOwl" data-src="{{ media_url_thumbnail }}">
                 </div>
         {{/each}}
         </script>

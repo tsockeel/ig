@@ -15,8 +15,8 @@
 
 .caption {
     text-overflow: ellipsis;
-  white-space: breakall;
-  overflow: hidden;
+    white-space: breakall;
+    overflow: hidden;
 }
 
 #sync2 .item {

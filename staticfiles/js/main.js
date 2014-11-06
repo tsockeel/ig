@@ -1,5 +1,15 @@
 $(document).ready(function () {
 
+
+	function onShowSettingsContent() {
+		
+		$(".popover-content").text("hola");
+	}
+
+
+
+    $(function () { $("[data-toggle='popover']").popover(); });
+
     var sync1 = $("#sync1");
     var sync2 = $("#sync2");
 
@@ -10,7 +20,8 @@ $(document).ready(function () {
         pagination: false,
       	autoPlay : 5000,
         afterAction: syncPosition,
-	lazyLoad : true
+	lazyLoad : true,
+	transitionStyle : "fade"
     });
 
     sync2.owlCarousel({
@@ -21,6 +32,7 @@ $(document).ready(function () {
         itemsMobile: [479, 4],
         pagination: false,
         responsiveRefreshRate: 100,
+	lazyLoad : true,
         afterInit: function (el) {
             el.find(".owl-item").eq(0).addClass("synced");
         }
@@ -133,7 +145,7 @@ $(".subscribe").click(function(){
 });
 })
 
- 
+
   
     function center(number) {
         var sync2visible = sync2.data("owlCarousel").owl.visibleItems;
