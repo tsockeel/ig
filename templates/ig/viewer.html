@@ -20,6 +20,11 @@
 		</div>
 		{% endfor %}
 	</div>
+
+	<div class="parameters hidden">
+		<a class="most_recent_post"></a>
+		<a class="autoplay">5000</a>
+	</div>
 	  
 	<div class="customNavigation">
 		<a class="glyphicon glyphicon-step-backward mybtn first"></a>
@@ -28,9 +33,15 @@
 		<a class="glyphicon glyphicon-chevron-right mybtn next"></a>
 		<a class="glyphicon glyphicon-step-forward mybtn last"></a>
 		<a class="most_recent_post" style="visibility: hidden"></a>
-		<a type="button" class="glyphicon glyphicon-cog mybtn settings" data-html=true data-toggle="popover" title="Settings" data-content=onShowSettingsContent()></a>
-		<input type="text" class="form-control subscribe-input" style="max-width:200px; display: inline-block;">
-		<a class="mybtn subscribe">Go !</a>
+		<a class="glyphicon glyphicon-cog mybtn mysettings" data-toggle="popover" data-popover-content="#settingscontent" data-placement="bottom"></a>
+		<div id="settingscontent" class="hidden">
+			<div class="popover-heading">Settings</div>
+			<div class="popover-body">
+			<a class="glyphicon glyphicon-time"></a>
+			<input type="number" class="form-control autoplayvalue" min="1" max="3600" style="max-width:80px; display: inline-block;">
+			<a> s <a>
+			</div>
+		</div>
 	</div>	  
 	
 
@@ -59,7 +70,7 @@
   
   
 	<!-- Include js plugin -->
-	<script src="{% static 'js/jquery-2.1.1.min.js' %}"></script>
+	<script src="{% static 'js/jquery-2.1.1.js' %}"></script>
 	<script src="{% static 'js/bootstrap-transition.js' %}"></script>
 	<script src="{% static 'js/owl.carousel.js' %}"></script>
 	<script src="{% static 'js/bootstrap.min.js' %}"></script>

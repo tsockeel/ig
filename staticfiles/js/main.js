@@ -1,14 +1,20 @@
 $(document).ready(function () {
 
-
-	function onShowSettingsContent() {
-		
-		$(".popover-content").text("hola");
-	}
-
-
-
     $(function () { $("[data-toggle='popover']").popover(); });
+
+
+    $(".mysettings").popover({
+        html : true,
+        content: function() {
+          var content = $(this).attr("data-popover-content");
+          return $(content).children(".popover-body").html();
+        },
+        title: function() {
+          var title = $(this).attr("data-popover-content");
+          return $(title).children(".popover-heading").html();
+        }
+    });
+
 
     var sync1 = $("#sync1");
     var sync2 = $("#sync2");
@@ -18,10 +24,10 @@ $(document).ready(function () {
         slideSpeed: 500,
         navigation: false,
         pagination: false,
-      	autoPlay : 5000,
+      	autoPlay : parseInt($(".parameters .autoplay").text()),
         afterAction: syncPosition,
 	lazyLoad : true,
-	transitionStyle : "fade"
+	transitionStyle : "fade",
     });
 
     sync2.owlCarousel({
@@ -126,9 +132,21 @@ $(document).ready(function () {
 
     $(".refresh").click(refresh);
 
+    $(".mysettings").on('hide.bs.popover', function () {
+  	var autoplayValue = parseInt($(".popover-content .autoplayvalue").val(), 10) * 1000;
+        $(".parameters .autoplay").text(autoplayValue);
+        sync1.data('owlCarousel').reinit(
+                {autoPlay : autoplayValue});
+    })
+
+    $(".mysettings").on('shown.bs.popover', function () {
+	var autoplayValue = parseInt($(".parameters .autoplay").text(), 10) /1000;
+ 	$(".popover-content .autoplayvalue").val(autoplayValue);
+    })
+
+
 
 $(".subscribe").click(function(){
-
 	var tagname_sub = $(".subscribe-input").val();
 	$(".most_recent_post").text(Date.now());
 
