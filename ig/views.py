@@ -15,7 +15,7 @@ import datetime
 import json
 from django.conf import settings
 import redis
-#import zmq
+
 
 from instagram import client, subscriptions
 
@@ -28,18 +28,6 @@ CONFIG = {
 
 redis_server = redis.StrictRedis(host='localhost', port=6379, db=0)
 
-#port = "5556"
-#context = zmq.Context()
-#socket = context.socket(zmq.PAIR)
-
-
-#def send_zmq_message(message):
-#	try:
-#        	socket.bind("tcp://66.228.61.74:%s" % port)
-#        except Exception, e:
-#        	print 'bind exception: %s'% e
-#
-#	socket.send(message)
 
 
 def recent_tag(tagname):
@@ -59,7 +47,6 @@ def recent_tag(tagname):
 			message = media.get_standard_resolution_url()
 			redis_server.publish("message", message)
 			print 'sending message %s' % message
-#			send_zmq_message(tagname + " " + media.get_standard_resolution_url())
 
 			try:
 				Post.objects.get(instagram_id=media.id)
