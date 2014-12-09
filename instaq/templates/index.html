@@ -32,8 +32,17 @@
 	{% endif %}
 {% endblock %}
 
-
 {% block content %}
+	<div class="row">
+		<div id="live" class="col-xs-6 col-md-3">
+
+		</div>
+	</div>
+
+{% endblock %}
+
+
+{% block content1 %}
 	{% if user.is_authenticated %}
 		<div class="spacer">
 			<form class="form-inline" role="createevent" method="post" action="createevent/">
