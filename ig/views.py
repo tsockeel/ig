@@ -13,7 +13,9 @@ from django.utils.dateparse import parse_datetime
 from django.db.models import Q
 import datetime
 import json
-import zmq
+from django.conf import settings
+import redis
+#import zmq
 
 from instagram import client, subscriptions
 
@@ -24,17 +26,21 @@ CONFIG = {
         'redirect_uri': 'http://66.228.61.74:8001/ig/oauth'
 }
 
-port = "5556"
-context = zmq.Context()
-socket = context.socket(zmq.PAIR)
+redis_server = redis.StrictRedis(host='localhost', port=6379, db=0)
 
-def send_zmq_message(message):
-	try:
-        	socket.bind("tcp://66.228.61.74:%s" % port)
-        except Exception, e:
-        	print 'bind exception: %s'% e
+#port = "5556"
+#context = zmq.Context()
+#socket = context.socket(zmq.PAIR)
 
-	socket.send(message)
+
+#def send_zmq_message(message):
+#	try:
+#        	socket.bind("tcp://66.228.61.74:%s" % port)
+#        except Exception, e:
+#        	print 'bind exception: %s'% e
+#
+#	socket.send(message)
+
 
 def recent_tag(tagname):
 	if not tagname:
@@ -50,14 +56,16 @@ def recent_tag(tagname):
 		recent_media, next = api.tag_recent_media(tag_name=tag_search[0].name, count=1)
 
 		for media in recent_media:
-#			print 'new media %s' % media.link
+			message = media.get_standard_resolution_url()
+			redis_server.publish("message", message)
+			print 'sending message %s' % message
 #			send_zmq_message(tagname + " " + media.get_standard_resolution_url())
 
 			try:
 				Post.objects.get(instagram_id=media.id)
 				print "got existing post"
 			except Post.DoesNotExist:
-				Post.objects.create(username=media.user.username, instagram_id=media.id, post_url=media.link, media_type=media.type, tagname=tagname, caption_text=media.caption.text, media_url_thumbnail=media.get_thumbnail_url(), media_url_stdres=media.get_standard_resolution_url())
+				Post.objects.create(event=1, username=media.user.username, instagram_id=media.id, post_url=media.link, media_type=media.type, tagname=tagname, caption_text=media.caption.text, media_url_thumbnail=media.get_thumbnail_url(), media_url_stdres=media.get_standard_resolution_url())
 				print "created post in database"
 
 	except Exception, e:
