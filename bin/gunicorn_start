@@ -4,7 +4,7 @@ NAME="djangoapp" # Name of the application
 DJANGODIR=/srv/www/django-webapp/ig # Django project directory
 SOCKFILE=/srv/www/django-webapp/ig/run/djangoapp.sock # we will communicte using this unix socket
 BINDSOCKFILE=unix:$SOCKFILE
-BINDIP=127.0.0.1:8181 #66.228.61.74:8001
+BINDIP=127.0.0.1:3031 #66.228.61.74:8001
 USER=djangoapp # the user to run as
 GROUP=webapps # the group to run as
 NUM_WORKERS=3 # how many worker processes should Gunicorn spawn
@@ -26,11 +26,28 @@ test -d $RUNDIR || mkdir -p $RUNDIR
  
 # Start your Django Unicorn
 # Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
-exec ../bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
---name $NAME \
---workers $NUM_WORKERS \
---user=$USER --group=$GROUP \
---bind=$BINDSOCKFILE \
---log-level=debug \
---timeout $TIMEOUT \
---log-file /srv/www/django-webapp/ig/logs/gunicorn.log
+
+#exec ../bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
+#--name $NAME \
+#--workers $NUM_WORKERS \
+#--user=$USER --group=$GROUP \
+#--bind=$BINDIP \
+#--log-level=debug \
+#--timeout $TIMEOUT \
+#--log-file /srv/www/django-webapp/ig/logs/gunicorn.log
+
+
+BASEDIR=$(cd $(dirname $0); pwd)
+
+UWSGI_PORT=3031 # NOT http port
+
+exec uwsgi --chdir=$BASEDIR/.. \
+--module=${DJANGO_WSGI_MODULE}:application \
+--env ${DJANGO_SETTINGS_MODULE} \
+--master --pidfile=/tmp/nodejs-websockets-django_webapp.pid \
+--socket=127.0.0.1:$UWSGI_PORT \
+--processes=5 \
+--harakiri=20 \
+--max-requests=5000 \
+--vacuum \
+--home=${BASEDIR}/../..
