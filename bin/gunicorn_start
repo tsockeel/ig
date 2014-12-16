@@ -50,4 +50,5 @@ exec uwsgi --chdir=$BASEDIR/.. \
 --harakiri=20 \
 --max-requests=5000 \
 --vacuum \
+--logto $BASEDIR/../logs/uwsgi.log
 --home=${BASEDIR}/../..

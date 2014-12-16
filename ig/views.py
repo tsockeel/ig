@@ -5,13 +5,14 @@ from django.template import RequestContext
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
-from ig.models import Post
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 from django.utils.dateparse import parse_datetime
 from django.db.models import Q
 import datetime
+from ig.models import Event, Tag, Post
+from django.utils import timezone
 import json
 from django.conf import settings
 import redis
@@ -39,21 +40,31 @@ def recent_tag(tagname):
 		print 'Missing Access Token'
 		return
 	try:
+		activeTags = Tag.objects.filter(name=tagname)
+		# database processing
+		now = timezone.now()
+		activeEvent1 = Event.objects.filter(stop_time__gt=now) #.filter(start_time__lt=now).filter(tag__name__contains=tagname)
+		activeEvent2 = activeEvent1.filter(start_time__lt=now)#.filter(tag__name__contains=tagname)
+		activeEvents= activeEvent2.filter(tag__name__contains=tagname)
+
+		#instagram requests
 		api = client.InstagramAPI(access_token=access_token)
 		tag_search, next_tag = api.tag_search(q=tagname)
 		recent_media, next = api.tag_recent_media(tag_name=tag_search[0].name, count=1)
 
 		for media in recent_media:
-			message = media.get_standard_resolution_url()
-			redis_server.publish("message", message)
-			print 'sending message %s' % message
+			for activeEvent in activeEvents:
+				tag = activeTags.get(event = activeEvent.pk)
+				url = 'https://api.instagram.com/v1/media/' + media.id + '?client_id=' + CONFIG["client_id"]
+				redis_server.publish("message", { 'tag':tag.name, 'url': url, 'event':activeEvent.name })
+				print 'sending message %s' % url
 
-			try:
-				Post.objects.get(instagram_id=media.id)
-				print "got existing post"
-			except Post.DoesNotExist:
-				Post.objects.create(event=1, username=media.user.username, instagram_id=media.id, post_url=media.link, media_type=media.type, tagname=tagname, caption_text=media.caption.text, media_url_thumbnail=media.get_thumbnail_url(), media_url_stdres=media.get_standard_resolution_url())
-				print "created post in database"
+#			try:
+#				Post.objects.get(instagram_id=media.id)
+#				print "got existing post"
+#			except Post.DoesNotExist:
+#				Post.objects.create(event=1, username=media.user.username, instagram_id=media.id, post_url=media.link, media_type=media.type, tagname=tagname, caption_text=media.caption.text, media_url_thumbnail=media.get_thumbnail_url(), media_url_stdres=media.get_standard_resolution_url())
+#				print "created post in database"
 
 	except Exception, e:
 		print 'recent_tag exception: %s' % e
@@ -162,12 +173,33 @@ def tag(request, tagname):
 	return render_to_response('ig/content.html', locals(), RequestContext(request))
 
 
+def subscribeNewTag(tagToSubscribe):
+	unauthenticated_api.create_subscription(object='tag', object_id=tagToSubscribe, aspect='media', callback_url='http://66.228.61.74:8001/ig/postupdate/')
+
+def getTagSubscription(tagname):
+	subscriptions = unauthenticated_api.list_subscriptions()
+	for subscription in subscriptions["data"]:
+                if tagname == subscription["object_id"]:
+			return subscription
+	return {}
+
+def createTagSubscription(newTagName):
+	if not getTagSubscription(newTagName):
+		subscribeNewTag(newTagName)
+
+def deleteTagSubscription(tagToDelete):
+	subscription = getTagSubscription(tagToDelete)
+	if subscription:
+		unauthenticated_api.delete_subscriptions(id=subscription["id"])
+
+
 def subtag(request):
 	if request.method == 'GET' and 'tagname' in request.GET and request.GET['tagname']:
 		tagname = request.GET['tagname']
 		print 'realtimetag %s' %tagname
 		try:
-			unauthenticated_api.create_subscription(object='tag', object_id=tagname, aspect='media', callback_url='http://66.228.61.74:8001/ig/postupdate/')
+			createTagSubscription(tagname)
+#			unauthenticated_api.create_subscription(object='tag', object_id=tagname, aspect='media', callback_url='http://66.228.61.74:8001/ig/postupdate/')
 			print 'realtimetag subscription done'
 		except Exception, e:
 			print 'realtimetag exception: %s' % e
