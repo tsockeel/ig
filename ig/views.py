@@ -17,6 +17,9 @@ import json
 from django.conf import settings
 import redis
 
+import logging
+logger = logging.getLogger('djangologger')
+
 
 from instagram import client, subscriptions
 
@@ -33,11 +36,11 @@ redis_server = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 def recent_tag(tagname):
 	if not tagname:
-		print 'No tag name from update ! '
+		logger.error('empty tagname on update from instagram')
 		return
 
 	if not access_token:
-		print 'Missing Access Token'
+		logger.error('Missing Access Token')
 		return
 	try:
 		activeTags = Tag.objects.filter(name=tagname)
@@ -57,6 +60,7 @@ def recent_tag(tagname):
 			for activeEvent in activeEvents:
 				try:
 					Post.objects.get(instagram_id=media.id)
+					logger.debug('got existing post - already tagged %s' % media.id)
 				except Post.DoesNotExist:
 					activeTag = activeTags.get(event = activeEvent.pk)
 	                                url = "https://api.instagram.com/v1/media/" + media.id + "?client_id=" + CONFIG["client_id"]
@@ -64,11 +68,10 @@ def recent_tag(tagname):
 					Post.objects.create(event=activeEvent, instagram_id=media.id, url=media.link, tag=activeTag)
 					# sending notification
         	                        redis_server.publish("message", json.dumps( { 'url': url, 'eventname':activeEvent.name, 'tag':activeTag.name}))
-					#print 'sending message %s' % url
+					logger.debug('sending message %s' % url)
 
 	except Exception, e:
-		print 'recent_tag exception: %s' % e
-
+		logger.error('caught exception: %s' % e)
 
 
 def parse_instagram_update(update):
@@ -87,7 +90,7 @@ def home(request):
 		oauth_url = unauthenticated_api.get_authorize_url(scope=["basic"])
 		subsc_list = unauthenticated_api.list_subscriptions()
 	except Exception, e:
-		print 'home exception: %s' %e
+		logger.error('caught exception: %s' %e)
 	return render_to_response('ig/content.html', locals(), RequestContext(request))
 
 
@@ -97,15 +100,16 @@ def oauth(request):
 		return 'Missing code'
 	try:
 		access_token, user_info = unauthenticated_api.exchange_code_for_access_token(code)
-		print "access token= " + access_token
+		logger.info("access token= " + access_token)
 		if not access_token:
+			logger.error('Could not get access token')
 			return 'Could not get access token'
 		api = client.InstagramAPI(access_token=access_token)
 		request.session['username'] = user_info['username']
 		request.session['access_token'] = access_token
 
 	except Exception, e:
-		print 'oauth exception: %s' %e
+		logger.error('caught exception: %s' %e)
 
 	return redirect('home')
 
@@ -143,8 +147,8 @@ def viewerupdate(request):
 		output = json.dumps(actual_data, cls=DjangoJSONEncoder)
 		return HttpResponse(output, content_type='application/json')
 	except Exception, e:
-                error = 'viewerupdate exception: %s' %e
-		print error
+                error = 'caught viewerupdate exception: %s' %e
+		logger.error(error)
 		return HttpResponse(error, content_type="text/plain")
 	# Less powerfull
 	#return JsonResponse(list(posts), safe=False) 
@@ -169,12 +173,13 @@ def tag(request, tagname):
 			photos.append("</a><br/> </div>")
 		media_content += ''.join(photos)
 	except Exception, e:
-		print 'recenttag exception: %s' %e
+		logger.error('caught exception: %s' %e)
 	return render_to_response('ig/content.html', locals(), RequestContext(request))
 
 
 def subscribeNewTag(tagToSubscribe):
 	unauthenticated_api.create_subscription(object='tag', object_id=tagToSubscribe, aspect='media', callback_url='http://66.228.61.74:8001/ig/postupdate/')
+	logger.info('API instagram: create tag subscription done for %s' %tagToSubscribe)
 
 def getTagSubscription(tagname):
 	subscriptions = unauthenticated_api.list_subscriptions()
@@ -191,18 +196,17 @@ def deleteTagSubscription(tagToDelete):
 	subscription = getTagSubscription(tagToDelete)
 	if subscription:
 		unauthenticated_api.delete_subscriptions(id=subscription["id"])
+		logger.info('API instagram: delete tag subscription done for %s' %tagToDelete)
 
 
 def subtag(request):
 	if request.method == 'GET' and 'tagname' in request.GET and request.GET['tagname']:
 		tagname = request.GET['tagname']
-		print 'realtimetag %s' %tagname
+		logger.info('realtimetag %s' %tagname)
 		try:
 			createTagSubscription(tagname)
-#			unauthenticated_api.create_subscription(object='tag', object_id=tagname, aspect='media', callback_url='http://66.228.61.74:8001/ig/postupdate/')
-			print 'realtimetag subscription done'
 		except Exception, e:
-			print 'realtimetag exception: %s' % e
+			logger.error('caught exception: %s' % e)
 		return redirect('home')
 
 
@@ -210,25 +214,24 @@ def rmsubtag(request, id):
 	try:
 		unauthenticated_api.delete_subscriptions(id=id)
 	except Exception, e:
-		print 'realtimeremove exception: %s'% e
+		logger.error('caught exception: %s'% e)
 	return redirect('home')
 
 
 @csrf_exempt
 def postupdate(request):
-
 	if request.method == 'GET':
 		challenge = request.GET.get('hub.challenge')
 		if challenge:
 			return HttpResponse(challenge)
 	else:
-
 		x_hub_signature = request.META.get('HTTP_X_HUB_SIGNATURE')
 		raw_response = request.body
 
 		try:
 			reactor.process(CONFIG['client_secret'], raw_response, x_hub_signature)
 		except Exception, e:
-			print 'postupdate exception: %s' %e
+			logger.error('caught exception: %s' %e)
 
 	return HttpResponse('Parsed instagram')
+

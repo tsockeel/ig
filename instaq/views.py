@@ -10,6 +10,10 @@ from ig.models import Event, Tag, Post
 from django.utils import timezone 
 from ig.views import createTagSubscription, deleteTagSubscription
 
+import logging
+logger = logging.getLogger('djangologger')
+
+
 def home(request):
     user = request.user
     if user.is_authenticated():
@@ -58,11 +62,11 @@ def create_event(request):
         if request.method == 'POST':
             form = EventForm(request.POST)
             if form.is_valid():
-		print "creating event"
+		logger.info("creating event: %s" %form.cleaned_data['name'])
                 new_event = Event(name=form.cleaned_data['name'], owner=request.user, start_time=form.cleaned_data['start_datetime'], stop_time=form.cleaned_data['stop_datetime'])
                 new_event.save()
     except Exception, e:
-        print 'create_event exception: %s' % e
+        logger.error('caught exception: %s' % e)
     return redirect(home)
 
 
@@ -76,10 +80,10 @@ def remove_event(request, eventid):
 
 		#removing event
             	eventtoremove = Event.objects.get(id=eventid)
-            	print "removing event named %s" % eventtoremove.name
+		logger.info('event removed: %s' % eventtoremove.name)
             	eventtoremove.delete()
         except Exception, e:
-                print 'remove_event exception: %s' % e
+                logger.error('caught exception: %s' % e)
         return redirect(home)
 
 
@@ -89,8 +93,9 @@ def pause_event(request, eventid):
                 currentEvent = Event.objects.get(pk = eventid)
                 currentEvent.paused = True
 		currentEvent.save()
+		logger.info('event paused: %s' % currentEvent.name)
         except Exception, e:
-                print 'pause_event exception: %s' % e
+                logger.error('caught exception: %s' % e)
         return redirect(home)
 
 
@@ -100,24 +105,26 @@ def resume_event(request, eventid):
                 currentEvent = Event.objects.get(pk = eventid)
                 currentEvent.paused = False
                 currentEvent.save()
+		logger.info("event resumed: %s" % currentEvent.name)
         except Exception, e:
-                print 'resume_event exception: %s' % e
+                logger.error('caught exception: %s' % e)
         return redirect(home)
 
 
 @login_required
 def create_tag(request):
     try:
-        print "creating tag"
         if request.method == 'POST':
             form = TagForm(request.POST)
             if form.is_valid():
                 current_ev = Event.objects.get(pk=form.cleaned_data['event_id'])
                 new_tag = Tag(name=form.cleaned_data['name'], event=current_ev)
                 new_tag.save()
+		logger.info("new tag created in db: %s" % new_tag.name)
 		createTagSubscription(new_tag.name)
     except Exception, e:
-        print 'create_tag exception: %s' % e
+	logger.error('caught exception: %s' % e)
+
     return redirect(home)
 
 
@@ -129,25 +136,25 @@ def remove_subscription(tag):
 	for sameTag in sameTags:
 		event = Event.objects.get(id=sameTag.event.pk)
 		if event.start_time < nowDate and event.stop_time > nowDate and event.pk != tag.event.id:
-			print "anotherEventIsUsingSameTag eventname: %s" %event.name
+			logger.info("anotherEventIsUsingSameTag eventname: %s" %event.name)
 			anotherEventIsUsingSameTag = True
 	if not anotherEventIsUsingSameTag:
-		print "deleteTagSubscription named %s" % tag.name
 		deleteTagSubscription(tag.name)		
 
 def remove_tag_fromid(tagid):
-	tagToRemove = Tag.objects.get(id=tagid)
-        remove_subscription(tagToRemove)
-        print "removing tag named %s from db" % tagToRemove.name
-        tagToRemove.delete()
-
+	try:
+		tagToRemove = Tag.objects.get(id=tagid)
+	        remove_subscription(tagToRemove)
+		logger.info("tag removed from db %s" % tagToRemove.name)
+	        tagToRemove.delete()
+	except Exception, e:
+		logger.info("caught exception id=%s" % tagid)
 
 @login_required
 def remove_tag(request, tagid):
         try:
 		remove_tag_fromid(tagid)
         except Exception, e:
-                print 'remove_tag exception: %s' % e
+		logger.error('caught exception: %s' % e)
         return redirect(home)
-
 
