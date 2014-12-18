@@ -25,6 +25,7 @@
 			</div>
 			<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav navbar-right">
+					<li><a href="livegallery/allevents">Live gallery all events</a></li>
 					<li><a>{{ user.username }}</a></li>
 					<li><a href="logout/">Logout</a></li>
 				</ul>
@@ -63,13 +64,28 @@
                     <div class="panel-heading clearfix">
                         <h2 class="panel-title">{{ e.event.name }}
                             <div class="pull-right">
-                                <a href="rmevent/{{ e.event.id }}" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-remove"></span></a>
+                                <a href="rmevent/{{ e.event.id }}" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span></a>
                             </div>
                         </h2>
                     </div>
                     <div class="panel-body">
-			<p>Start on <span class="text-success">{{ e.event.start_time|date:"D d M Y" }} at {{ e.event.start_time|time:"H:i" }} </span> and stop on
-			<span class="text-danger">{{ e.event.stop_time|date:"D d M Y" }} at {{ e.event.stop_time|time:"H:i" }}</span></p>
+			<p>
+				From <span class="text-success">{{ e.event.start_time|date:"D d M Y" }} at {{ e.event.start_time|time:"H:i" }} </span> to
+				<span class="text-danger">{{ e.event.stop_time|date:"D d M Y" }} at {{ e.event.stop_time|time:"H:i" }}</span>
+			</p>
+			<p>
+				<span> {{ e.posts.count }} posts </span> 
+			</p>
+			<p>
+				{% if e.activated %}
+					{% if e.event.paused %}
+						<button type="button" class="btn btn-default" aria-label="Resume" onclick="window.location='resumeevent/{{ e.event.id }}';">Resume</button>
+					{% else %}
+						<button type="button" class="btn btn-default" aria-label="Pause" onclick="window.location='pauseevent/{{ e.event.id }}';">Pause</button>
+					{% endif %}
+				{% endif %}
+			</p>
+			<p>Live gallery  <a class="glyphicon glyphicon-eye-open" href="livegallery/{{ e.event.name }}"></a></p>
                         <form class="form-inline" role="createtag" method="post" action="createtag/">
                             {% csrf_token %}
                             <div class="input-group">
