@@ -45,7 +45,8 @@ def recent_tag(tagname):
 		now = timezone.now()
 		activeEvent1 = Event.objects.filter(stop_time__gt=now) #.filter(start_time__lt=now).filter(tag__name__contains=tagname)
 		activeEvent2 = activeEvent1.filter(start_time__lt=now)#.filter(tag__name__contains=tagname)
-		activeEvents= activeEvent2.filter(tag__name__contains=tagname)
+		activeEvent3= activeEvent2.filter(tag__name__contains=tagname)
+		activeEvents= activeEvent3.filter(paused=False)
 
 		#instagram requests
 		api = client.InstagramAPI(access_token=access_token)
@@ -54,17 +55,16 @@ def recent_tag(tagname):
 
 		for media in recent_media:
 			for activeEvent in activeEvents:
-				tag = activeTags.get(event = activeEvent.pk)
-				url = 'https://api.instagram.com/v1/media/' + media.id + '?client_id=' + CONFIG["client_id"]
-				redis_server.publish("message", { 'tag':tag.name, 'url': url, 'event':activeEvent.name })
-				print 'sending message %s' % url
-
-#			try:
-#				Post.objects.get(instagram_id=media.id)
-#				print "got existing post"
-#			except Post.DoesNotExist:
-#				Post.objects.create(event=1, username=media.user.username, instagram_id=media.id, post_url=media.link, media_type=media.type, tagname=tagname, caption_text=media.caption.text, media_url_thumbnail=media.get_thumbnail_url(), media_url_stdres=media.get_standard_resolution_url())
-#				print "created post in database"
+				try:
+					Post.objects.get(instagram_id=media.id)
+				except Post.DoesNotExist:
+					activeTag = activeTags.get(event = activeEvent.pk)
+	                                url = "https://api.instagram.com/v1/media/" + media.id + "?client_id=" + CONFIG["client_id"]
+					# saving in the database
+					Post.objects.create(event=activeEvent, instagram_id=media.id, url=media.link, tag=activeTag)
+					# sending notification
+        	                        redis_server.publish("message", json.dumps( { 'url': url, 'eventname':activeEvent.name, 'tag':activeTag.name}))
+					#print 'sending message %s' % url
 
 	except Exception, e:
 		print 'recent_tag exception: %s' % e
